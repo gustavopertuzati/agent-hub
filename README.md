@@ -60,11 +60,28 @@ Dictionnaire dynamique `{ nom: { path absolu, description, url, deploy } }` :
 Express est configuré `trust proxy + CORS *` (équivalent `allowedHosts: true`) :
 
 ```bat
-ngrok http 4000
+scripts\expose-ngrok.bat
 ```
 
-Puis partagez `https://<id>.ngrok-free.app?token=<clé>` aux collaborateurs.
-Vérifiez la config : `ngrok config check`.
+- Prérequis : le domaine statique du compte doit être libre. Le
+  `https://tricolor-approve-unscented.ngrok-free.dev` est actuellement occupé
+  par le tunnel open-decks d'un **autre hôte** (`ERR_NGROK_334` sinon —
+  aucune instance ngrok ne tourne sur cette machine).
+- Ne jamais utiliser `--pooling-enabled` avec l'URL d'un autre service
+  (mélange des trafics).
+- Les collaborateurs ajoutent le header `ngrok-skip-browser-warning: true`
+  (sinon page d'avertissement `ERR_NGROK_6024`).
+
+## Runtime local retenu (plan Orkestr gratuit saturé : 1 projet = open-decks live)
+
+```bat
+pm2.cmd start ecosystem.config.js
+pm2.cmd save
+pm2.cmd list
+```
+
+- Relance auto en cas de crash (pm2). Après un reboot : `pm2.cmd resurrect`.
+- UI : http://localhost:4000 · santé : `GET /api/health` · WS : `/ws?token=…`.
 
 ## Prod (pm2)
 
