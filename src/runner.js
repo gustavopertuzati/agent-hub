@@ -99,8 +99,10 @@ async function runAgent({ jobId, project, instruction, user }, broadcast) {
   }
 
   // EXÉCUTION CLI réelle : `opencode run "<prompt>"` dans le dossier projet (cwd).
+  // Commande en chaîne unique (shell:true) : évite DEP0190 et respecte le cwd.
   return new Promise((resolve) => {
-    const child = spawn(bin, ['run', fullPrompt], { cwd: absPath, shell: true, windowsHide: true });
+    const cmd = `${bin} run ${JSON.stringify(fullPrompt)}`;
+    const child = spawn(cmd, [], { cwd: absPath, shell: true, windowsHide: true });
     let killed = false;
     const timer = setTimeout(() => {
       killed = true;
