@@ -40,6 +40,29 @@ $('project').addEventListener('change', () => api('/api/projects').then(({ data 
 $('reload').onclick = loadProjects;
 $('clear').onclick = () => { term.textContent = ''; $('deployInfo').textContent = ''; };
 
+$('create').onclick = async () => {
+  const name = $('npName').value.trim(), p = $('npPath').value.trim();
+  if (!name || !p) { $('npMsg').textContent = 'Nom et chemin absolu requis.'; return; }
+  const body = {
+    name, path: p,
+    description: $('npDesc').value.trim(),
+    url: $('npUrl').value.trim(),
+  };
+  const build = $('npBuild').value.trim(), restart = $('npRestart').value.trim();
+  if (build || restart) body.deploy = { build: build || 'npm run build', restart: restart || '' };
+  const { status, data } = await api('/api/projects', 'POST', body);
+  if (status !== 200) {
+    $('npMsg').textContent = 'Erreur: ' + (data.error || status);
+    log('Création projet échouée: ' + (data.error || status));
+    return;
+  }
+  $('npMsg').textContent = `Projet "${data.name}" créé → ${data.path}`;
+  log(`Projet créé: ${data.name} → ${data.path}`);
+  await loadProjects();
+  $('project').value = data.name;
+  $('project').dispatchEvent(new Event('change'));
+};
+
 $('verify').onclick = async () => {
   const { status, data } = await api('/api/auth/verify', 'POST', {});
   $('authMsg').textContent = status === 200 ? `Token valide — bienvenue ${data.user}` : `Invalide: ${data.error || status}`;

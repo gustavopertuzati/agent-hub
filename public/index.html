@@ -38,7 +38,33 @@
   </section>
 
   <section class="card">
-    <h2>3. Console d'instructions → agent OpenCode</h2>
+    <h2>3. Nouveau projet (registre)</h2>
+    <label>Nom (identifiant unique)
+      <input id="npName" type="text" placeholder="ex: mon-projet" autocomplete="off" />
+    </label>
+    <label>Chemin absolu sur la machine hôte
+      <input id="npPath" type="text" placeholder="ex: C:\Users\Gusta\Documents\Data\mon-projet" autocomplete="off" />
+    </label>
+    <label>Description
+      <input id="npDesc" type="text" placeholder="ex: API + front" />
+    </label>
+    <label>URL locale / publique
+      <input id="npUrl" type="text" placeholder="ex: http://localhost:3000" />
+    </label>
+    <label>Commande build (optionnel — exécutée telle quelle, ex: sous-dossier front)
+      <input id="npBuild" type="text" placeholder="npm run build --prefix front" />
+    </label>
+    <label>Commande restart (optionnel, ex: pm2 restart mon-projet)
+      <input id="npRestart" type="text" placeholder="pm2 restart mon-projet" />
+    </label>
+    <div class="row">
+      <button id="create">Créer le projet</button>
+    </div>
+    <p id="npMsg" class="muted"></p>
+  </section>
+
+  <section class="card">
+    <h2>4. Console d'instructions → agent OpenCode</h2>
     <textarea id="instruction" rows="5" placeholder="Ex: ajoute un bouton d'export CSV sur la page des decks, avec tests…"></textarea>
     <div class="row">
       <button id="send">Envoyer à l'agent</button>
@@ -49,7 +75,7 @@
   </section>
 
   <section class="card">
-    <h2>4. Terminal en direct</h2>
+    <h2>5. Terminal en direct</h2>
     <div class="row">
       <button id="clear" class="ghost">Effacer</button>
       <span id="job" class="muted"></span>

@@ -33,7 +33,16 @@ function execStream(cmd, cwd, onLog) {
   });
 }
 
-/** Build + reload auto : `npm run build && pm2 restart [PROJECT]` (dégradé propre si indisponible). */
+/** Build + reload auto.
+ * Sémantique deploy.build :
+ * - commande explicite non-défaut (ex: "npm run build --prefix front") -> TOUJOURS exécutée
+ *   (échec = déploiement en échec, exit code remonté) ;
+ * - "npm run build" ou vide -> auto-détection : exécuté seulement si package.json
+ *   racine contient un script "build", sinon étape ignorée proprement.
+ * deploy.buildDir (optionnel) : sous-dossier d'exécution du build.
+ */
+const DEFAULT_BUILD = 'npm run build';
+
 async function runDeploy({ project, jobId, user }, broadcast) {
   const { config, absPath } = resolveProjectPath(project);
   const onLog = (line) => emit(broadcast, jobId, 'log', { project, stream: 'deploy', data: String(line) });
@@ -47,11 +56,22 @@ async function runDeploy({ project, jobId, user }, broadcast) {
   }
 
   let build = { ok: true, skipped: true };
-  if (hasScript(absPath, 'build')) {
-    const buildCmd = (config.deploy && config.deploy.build) || 'npm run build';
-    build = await execStream(buildCmd, absPath, onLog);
+  const deployCfg = config.deploy || {};
+  const buildCmd = (deployCfg.build || '').trim();
+  if (buildCmd && buildCmd !== DEFAULT_BUILD) {
+    const buildDir = deployCfg.buildDir ? path.resolve(absPath, deployCfg.buildDir) : absPath;
+    if (!fs.existsSync(buildDir)) {
+      onLog(`[deploy] buildDir introuvable: ${buildDir} — étape en échec`);
+      build = { ok: false, exitCode: -1, command: buildCmd };
+    } else {
+      build = await execStream(buildCmd, buildDir, onLog);
+      build.command = buildCmd;
+    }
+  } else if (hasScript(absPath, 'build')) {
+    build = await execStream(DEFAULT_BUILD, absPath, onLog);
+    build.command = DEFAULT_BUILD;
   } else {
-    onLog('[deploy] aucun script "build" (package.json absent ou sans build) — étape ignorée');
+    onLog('[deploy] aucun script "build" (package.json racine) et aucune commande deploy.build explicite — étape ignorée');
   }
 
   let restart = { ok: true, skipped: true };
@@ -67,11 +87,15 @@ async function runDeploy({ project, jobId, user }, broadcast) {
   }
 
   const ok = (build.ok !== false) && (restart.ok !== false);
+  const steps = [
+    build.skipped ? 'build ignoré (non configuré)' : `build ${build.command || ''} exit=${build.exitCode}`.trim(),
+    restart.skipped ? 'restart ignoré (non configuré)' : `restart exit=${restart.exitCode}`,
+  ].join(' · ');
   emit(broadcast, jobId, 'deployed', {
     project, ok,
     build: build.exitCode ?? null, restart: restart.exitCode ?? null,
     url: config.url || '',
-    message: ok ? `Projet à jour${config.url ? ' : ' + config.url : ''}` : 'Déploiement en échec — voir logs',
+    message: ok ? `Projet à jour (${steps})${config.url ? ' : ' + config.url : ''}` : `Déploiement en échec (${steps}) — voir logs`,
   });
   return { ok, build, restart, url: config.url || '' };
 }
