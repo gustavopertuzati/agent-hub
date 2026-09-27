@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orkestr Gateway — Pilotage distant</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>Orkestr Gateway <span class="badge" id="conn">déconnecté</span></h1>
+  <p class="sub">Passerelle d'exécution OpenCode — port 4000 · snapshot git · context lock · build + pm2 · rollback</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1. Accès collaborateur</h2>
+    <label>Clé d'invitation / token
+      <input id="token" type="password" placeholder="ork-..." autocomplete="off" />
+    </label>
+    <label>Nom collaborateur
+      <input id="user" type="text" placeholder="ex: alice" value="collaborateur" />
+    </label>
+    <div class="row">
+      <button id="connect">Se connecter</button>
+      <button id="verify" class="ghost">Vérifier le token (REST)</button>
+    </div>
+    <p id="authMsg" class="muted"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Projet actif</h2>
+    <div class="row">
+      <select id="project"><option value="">— chargez les projets —</option></select>
+      <button id="reload" class="ghost">Recharger</button>
+    </div>
+    <p id="projInfo" class="muted"></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Console d'instructions → agent OpenCode</h2>
+    <textarea id="instruction" rows="5" placeholder="Ex: ajoute un bouton d'export CSV sur la page des decks, avec tests…"></textarea>
+    <div class="row">
+      <button id="send">Envoyer à l'agent</button>
+      <button id="rollback" class="danger">Rollback instantané (git reset --hard)</button>
+      <button id="deploy" class="ghost">Build + restart (pm2)</button>
+    </div>
+    <p class="muted">À la réception : snapshot <code>git commit -am "Pre-agent snapshot by [User]"</code> → prompt système <em>context lock</em> → <code>opencode run</code> dans le <code>cwd</code> du projet → streaming WS → <code>npm run build && pm2 restart</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2>4. Terminal en direct</h2>
+    <div class="row">
+      <button id="clear" class="ghost">Effacer</button>
+      <span id="job" class="muted"></span>
+    </div>
+    <pre id="terminal" aria-live="polite"></pre>
+    <p id="deployInfo" class="ok"></p>
+  </section>
+</main>
+
+<footer>
+  <span>Orkestr Gateway · <code>GET /api/health</code> · <code>WS /ws?token=…</code> · exposition : <code>ngrok http 4000</code></span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

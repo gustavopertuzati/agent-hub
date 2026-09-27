@@ -1,0 +1,20 @@
+{
+  "open-decks": {
+    "path": "C:\\Users\\Gusta\\Documents\\Data\\open-decks",
+    "description": "Projet Open Decks — hébergé sur la machine hôte",
+    "url": "http://localhost:3000",
+    "deploy": {
+      "build": "npm run build",
+      "restart": "pm2 restart open-decks"
+    }
+  },
+  "jeu-de-des": {
+    "path": "C:\\Users\\Gusta\\Documents\\Data\\jeu-de-des",
+    "description": "Projet Jeu de dés — hébergé sur la machine hôte",
+    "url": "http://localhost:3001",
+    "deploy": {
+      "build": "npm run build",
+      "restart": "pm2 restart jeu-de-des"
+    }
+  }
+}

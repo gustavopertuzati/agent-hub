@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT:-4000}:${PORT:-4000}"
+    environment:
+      - PORT=${PORT:-4000}
+      - GATEWAY_TOKENS=${GATEWAY_TOKENS:-orkestr-dev-token-change-me}
+      - PROJECTS_JSON=${PROJECTS_JSON:-}
+    restart: unless-stopped
