@@ -63,10 +63,17 @@ Express est configuré `trust proxy + CORS *` (équivalent `allowedHosts: true`)
 scripts\expose-ngrok.bat
 ```
 
-- Prérequis : le domaine statique du compte doit être libre. Le
-  `https://tricolor-approve-unscented.ngrok-free.dev` est actuellement occupé
-  par le tunnel open-decks d'un **autre hôte** (`ERR_NGROK_334` sinon —
-  aucune instance ngrok ne tourne sur cette machine).
+- Prérequis : le domaine statique du compte doit être libre.
+  Le `https://tricolor-approve-unscented.ngrok-free.dev` sert désormais la
+  **gateway** (`/api/health` → `service: orkestr-gateway`).
+  Pour cela, le tunnel auto d'open-decks a été coupé : ligne `NGROK_AUTHTOKEN`
+  commentée (`#DESACTIVE-PAR-GATEWAY`) dans `open-decks/.env`, serveur
+  open-decks relancé sous pm2 (local `:3000` intact, site Orkestr cloud intact).
+  Restaurer : décommentez la ligne dans `open-decks/.env` puis
+  `pm2.cmd restart open-decks` (cela reprendra le domaine — la gateway
+  retombera en `ERR_NGROK_334` : un seul tunnel ngrok gratuit à la fois).
+- Relancer le tunnel gateway : double-clic `scripts\expose-ngrok.bat`
+  (ou `ngrok http 4000`).
 - Ne jamais utiliser `--pooling-enabled` avec l'URL d'un autre service
   (mélange des trafics).
 - Les collaborateurs ajoutent le header `ngrok-skip-browser-warning: true`
