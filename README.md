@@ -87,7 +87,10 @@ pm2.cmd save
 pm2.cmd list
 ```
 
-- Relance auto en cas de crash (pm2). Après un reboot : `pm2.cmd resurrect`.
+- Relance auto en cas de crash (pm2). Après un reboot : restauration
+  automatique via `OrkestrGatewayAutorestore.bat` dans le dossier Démarrage
+  Windows (`pm2 resurrect` + `ngrok http 4000`) — sinon manuellement :
+  `pm2.cmd resurrect` puis `scripts\expose-ngrok.bat`.
 - UI : http://localhost:4000 · santé : `GET /api/health` · WS : `/ws?token=…`.
 
 ## Prod (pm2)
